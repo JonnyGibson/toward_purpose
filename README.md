@@ -1,16 +1,32 @@
-# toward_purpose
+# Purpose Tracker
 
-A new Flutter project.
+A mobile app for tracking weekly progress towards personal goals.
+
+## Description
+
+Weekly Tracker allows users to set and track weekly goals for various activities, such as fitness, learning, and meditation. Users can log the time they spend on each activity and add qualitative feedback on a daily basis. The app provides a weekly summary of progress towards each goal.
+
+## Features
+
+- Set and track weekly goals for various activities
+- Log time spent on each activity
+- Add qualitative feedback on a daily basis
+- View weekly summary of progress towards each goal
+
+## Technology
+
+This app is built using Flutter and utilizes ObjectBox for local data persistence.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Clone the repository
+2. Install dependencies by running `flutter pub get`
+3. Run the app using `flutter run`
 
-A few resources to get you started if this is your first Flutter project:
+## Contributing
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+We welcome contributions from the community! If you find a bug or have an idea for a new feature, please open an issue or submit a pull request.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## License
+
+This project is licensed under the MIT License.
