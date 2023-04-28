@@ -37,80 +37,108 @@ class _GoalScreenState extends State<GoalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
+        body: SingleChildScrollView(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Transform.translate(
-            offset: Offset(-50, -150),
-            child: Image.asset(
-              'assets/toward.png',
-              width: MediaQuery.of(context).size.width * 0.8,
-              fit: BoxFit.fitWidth,
-            ),
-          ),
-          Flexible(
-              child: Transform.translate(
-            offset: Offset(0, -100),
-            child: Text(
-              'What is it that you want to do?',
-              style: Theme.of(context).textTheme.displayMedium,
-            ),
-          )),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Enter your goal here',
-                contentPadding: EdgeInsets.all(16.0),
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              fixedSize: Size(MediaQuery.of(context).size.width / 3, 50),
-              backgroundColor:
-                  secondaryColor, // set the button's background color to green
-              padding: EdgeInsets.symmetric(
-                  horizontal: 16.0), // add some horizontal padding
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize
-                  .min, // set the main axis size to min to reduce the button's width
-              children: [
-                Text(
-                  'Next',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                  ),
-                ),
-                SizedBox(
-                    width: 8.0), // add some spacing between the label and icon
-                Image.asset(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Transform.translate(
+                offset: Offset(-50, -150),
+                child: Image.asset(
                   'assets/toward.png',
-                  width: 35.0,
-                  height: 34.0,
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                height: 120.0,
-                width: double.infinity,
-                color: primaryColor.withOpacity(0.5),
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: GoalText(),
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  fit: BoxFit.fitWidth,
                 ),
               ),
-            ),
+              Transform.translate(
+                offset: Offset(0, -150),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(
+                          'What is it',
+                          style: Theme.of(context).textTheme.displayLarge,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.9,
+                      child: FittedBox(
+                        fit: BoxFit.fitWidth,
+                        child: Text(
+                          'that you want?',
+                          style: Theme.of(context).textTheme.displayLarge,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: 16.0, horizontal: 32.0),
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Enter your goal here',
+                          contentPadding: EdgeInsets.all(16.0),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          fixedSize:
+                              Size(MediaQuery.of(context).size.width / 3, 50),
+                          backgroundColor:
+                              secondaryColor, // set the button's background color to green
+                        ),
+                        child: Row(
+                          //  mainAxisSize: MainAxisSize.min,
+                          //  mainAxisAlignment: MainAxisAlignment
+                          //   .center, // set the main axis size to min to reduce the button's width
+                          children: [
+                            Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                              ),
+                            ),
+                            SizedBox(
+                                width:
+                                    8.0), // add some spacing between the label and icon
+                            Image.asset(
+                              'assets/toward.png',
+                              width: 35.0,
+                              height: 34.0,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Transform.translate(
+                  offset: Offset(0, -50),
+                  child: Container(
+                    width: double.infinity,
+                    color: primaryColor.withOpacity(0.5),
+                    child: Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: GoalText(),
+                    ),
+                    alignment: Alignment.bottomCenter,
+                  ))
+            ],
           ),
         ],
       ),
-    );
+    ));
   }
 }
 

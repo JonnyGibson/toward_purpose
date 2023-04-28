@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         body: Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(top: 100.0, bottom: 50),
+              padding: EdgeInsets.only(top: 50.0, bottom: 30),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: SizedBox(
@@ -64,9 +64,31 @@ class MyApp extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              'Toward Purpose',
-              style: Theme.of(context).textTheme.displayLarge,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Text(
+                      'Toward',
+                      style: Theme.of(context).textTheme.displayLarge,
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: FittedBox(
+                    fit: BoxFit.fitWidth,
+                    child: Text(
+                      'Purpose',
+                      style: Theme.of(context).textTheme.displayLarge,
+                    ),
+                  ),
+                ),
+              ],
             ),
             Expanded(
                 child: Center(
