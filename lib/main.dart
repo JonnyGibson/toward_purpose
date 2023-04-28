@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'goalScreen.dart';
+
 void main() {
   runApp(MaterialApp(
     title: 'Toward Purpose',
@@ -69,7 +71,12 @@ class MyApp extends StatelessWidget {
             Expanded(
                 child: Center(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => GoalScreen()),
+                  );
+                },
                 child: Padding(
                   padding: EdgeInsets.all(20),
                   child: Text('Get Started'),
