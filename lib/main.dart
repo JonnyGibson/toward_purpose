@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'dataModel.dart';
+import 'hiveManager.dart';
+import 'viewGoal.dart';
+import 'welcomePage.dart';
 
-import 'goalScreen.dart';
-
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await HiveManager.init();
   runApp(MaterialApp(
     title: 'Toward Purpose',
     home: MyApp(),
@@ -16,98 +20,52 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final data = HiveManager.dataBox.get('data') as dataModel;
     return MaterialApp(
-      title: 'Toward Purpose',
-      theme: ThemeData(
-        primaryColor: primaryColor,
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: AppBarTheme(
-          color: primaryColor,
-          iconTheme: IconThemeData(color: Colors.white),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: accentColor,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
+        title: 'Toward Purpose',
+        onGenerateRoute: (RouteSettings settings) {
+          switch (settings.name) {
+            case '/':
+              return MaterialPageRoute(builder: (context) => WelcomePage());
+            case '/viewgoal':
+              return MaterialPageRoute(builder: (context) => ViewGoal());
+            default:
+              return MaterialPageRoute(builder: (context) => WelcomePage());
+          }
+        },
+        theme: ThemeData(
+          primaryColor: primaryColor,
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: AppBarTheme(
+            color: primaryColor,
+            iconTheme: IconThemeData(color: Colors.white),
           ),
-        ),
-        textTheme: TextTheme(
-          displayLarge: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: secondaryColor,
-          ),
-          bodyLarge: TextStyle(
-            fontSize: 16,
-            color: secondaryColor,
-          ),
-        ),
-        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: accentColor),
-      ),
-      home: Scaffold(
-        body: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 50.0, bottom: 30),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width / 3,
-                  child: Image.asset(
-                    'assets/toward.png',
-                    fit: BoxFit.cover,
-                  ),
-                ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: accentColor,
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: Text(
-                      'Toward',
-                      style: Theme.of(context).textTheme.displayLarge,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  child: FittedBox(
-                    fit: BoxFit.fitWidth,
-                    child: Text(
-                      'Purpose',
-                      style: Theme.of(context).textTheme.displayLarge,
-                    ),
-                  ),
-                ),
-              ],
+          ),
+          textTheme: TextTheme(
+            displayLarge: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: secondaryColor,
             ),
-            Expanded(
-                child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => GoalScreen()),
-                  );
-                },
-                child: Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Text('Get Started'),
-                ),
-              ),
-            )),
-          ],
+            bodyLarge: TextStyle(
+              fontSize: 16,
+              color: secondaryColor,
+            ),
+          ),
+          colorScheme:
+              ColorScheme.fromSwatch().copyWith(secondary: accentColor),
         ),
-      ),
-    );
+        home: data.goalStatement?.isNotEmpty != null
+            ? ViewGoal()
+            : WelcomePage());
   }
 }

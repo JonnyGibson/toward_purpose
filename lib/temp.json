@@ -1,0 +1,87 @@
+{
+    "goal_statement":"",
+    "measurables": [
+      {
+        "name": "Physical Fitness",
+        "target_weekly_hours": 10
+      },
+      {
+        "name": "Learning",
+        "target_weekly_hours": 5
+      },
+      {
+        "name": "Meditation",
+        "target_weekly_hours": 7
+      }
+    ],
+    "days": [
+      {
+        "date": "2023-04-16",
+        "daily_score": 1,
+        "qualitative_comment": "Feeling good about my progress so far",
+        "activities": [
+          {
+            "name": "Jogging",
+            "goal": "Physical Fitness",
+            "hours": 1
+          },
+          {
+            "name": "Reading",
+            "goal": "Learning",
+            "hours": 0.5
+          },
+          {
+            "name": "Meditation",
+            "goal": "Meditation",
+            "hours": 0.75
+          }
+        ]
+      },
+      {
+        "date": "2023-04-17",
+        "daily_score": 0,
+        "qualitative_comment": "Struggled to find motivation today",
+        "activities": [
+          {
+            "name": "Yoga",
+            "goal": "Physical Fitness",
+            "hours": 1
+          },
+          {
+            "name": "Online Course",
+            "goal": "Learning",
+            "hours": 1.5
+          },
+          {
+            "name": "Meditation",
+            "goal": "Meditation",
+            "hours": 0.5
+          }
+        ]
+      },
+      {
+        "date": "2023-04-18",
+        "daily_score": 2,
+        "qualitative_comment": "Had a great workout and a productive day",
+        "activities": [
+          {
+            "name": "Gym Workout",
+            "goal": "Physical Fitness",
+            "hours": 1.5
+          },
+          {
+            "name": "Reading",
+            "goal": "Learning",
+            "hours": 0.75
+          },
+          {
+            "name": "Meditation",
+            "goal": "Meditation",
+            "hours": 1
+          }
+        ]
+      }
+      
+    ]
+  }
+  

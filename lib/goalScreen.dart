@@ -2,23 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:toward_purpose/viewGoal.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: GoalScreen(),
-    );
-  }
-}
+import 'dataModel.dart';
 
 final Color primaryColor = Color.fromRGBO(243, 198, 152, 1.0);
 final Color secondaryColor = Color.fromRGBO(140, 148, 89, 1.0);
@@ -33,112 +20,94 @@ class GoalScreen extends StatefulWidget {
 
 class _GoalScreenState extends State<GoalScreen> {
   // final _formKey = GlobalKey<FormState>();
-
+  final _textEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final dataBox = Hive.box<dataModel>('dataBox');
     return Scaffold(
-        body: SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Transform.translate(
-                offset: Offset(-50, -150),
-                child: Image.asset(
-                  'assets/toward.png',
-                  width: MediaQuery.of(context).size.width * 0.8,
+          Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: 200,
+                height: 150,
+                child: FittedBox(
+                  alignment: Alignment.bottomCenter,
                   fit: BoxFit.fitWidth,
+                  child: Image.asset(
+                    'assets/toward.png',
+                  ),
                 ),
-              ),
-              Transform.translate(
-                offset: Offset(0, -150),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: Text(
-                          'What is it',
-                          style: Theme.of(context).textTheme.displayLarge,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.9,
-                      child: FittedBox(
-                        fit: BoxFit.fitWidth,
-                        child: Text(
-                          'that you want?',
-                          style: Theme.of(context).textTheme.displayLarge,
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 32.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Enter your goal here',
-                          contentPadding: EdgeInsets.all(16.0),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          fixedSize:
-                              Size(MediaQuery.of(context).size.width / 3, 50),
-                          backgroundColor:
-                              secondaryColor, // set the button's background color to green
-                        ),
-                        child: Row(
-                          //  mainAxisSize: MainAxisSize.min,
-                          //  mainAxisAlignment: MainAxisAlignment
-                          //   .center, // set the main axis size to min to reduce the button's width
-                          children: [
-                            Text(
-                              'Next',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                              ),
-                            ),
-                            SizedBox(
-                                width:
-                                    8.0), // add some spacing between the label and icon
-                            Image.asset(
-                              'assets/toward.png',
-                              width: 35.0,
-                              height: 34.0,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Transform.translate(
-                  offset: Offset(0, -50),
-                  child: Container(
-                    width: double.infinity,
-                    color: primaryColor.withOpacity(0.5),
-                    child: Padding(
-                      padding: EdgeInsets.all(4.0),
-                      child: GoalText(),
-                    ),
-                    alignment: Alignment.bottomCenter,
-                  ))
-            ],
+              )),
+          FittedBox(
+            fit: BoxFit.fitWidth,
+            child: Text(
+              'What is it\nthat you want?',
+              style: Theme.of(context).textTheme.displayLarge,
+            ),
           ),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+            child: TextField(
+              controller: _textEditingController,
+              decoration: InputDecoration(
+                hintText: 'Enter your goal here',
+                contentPadding: EdgeInsets.all(16.0),
+              ),
+            ),
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                final text = _textEditingController.text;
+                if (text.isNotEmpty) {
+                  final data = dataBox.get('data') ?? dataModel();
+                  data.goalStatement = text;
+                  dataBox.put('data', data);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ViewGoal()),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                fixedSize: Size(MediaQuery.of(context).size.width / 3, 50),
+                backgroundColor: secondaryColor,
+              ),
+              child: Row(
+                children: [
+                  Text(
+                    'Next',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  SizedBox(width: 8.0),
+                  Image.asset(
+                    'assets/toward.png',
+                    width: 35.0,
+                    height: 34.0,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                width: double.infinity,
+                color: primaryColor.withOpacity(0.5),
+                child: Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: GoalText(),
+                ),
+                alignment: Alignment.bottomCenter,
+              ))
         ],
       ),
-    ));
+    );
   }
 }
 
