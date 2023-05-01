@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
-import 'dataModel.dart';
-import 'hiveManager.dart';
+import 'package:provider/provider.dart';
+import 'dataProvider.dart';
 import 'viewGoal.dart';
 import 'welcomePage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await HiveManager.init();
-  runApp(MaterialApp(
-    title: 'Toward Purpose',
-    home: MyApp(),
-  ));
+  final dataProvider = DataProvider();
+  await dataProvider.loadData();
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => dataProvider,
+      child: MaterialApp(
+        title: 'Toward Purpose',
+        home: MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -20,7 +26,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final data = HiveManager.dataBox.get('data') as dataModel;
+    final dataProvider = context.watch<DataProvider>();
+    final data = dataProvider.data;
+
     return MaterialApp(
         title: 'Toward Purpose',
         onGenerateRoute: (RouteSettings settings) {
@@ -37,7 +45,7 @@ class MyApp extends StatelessWidget {
           primaryColor: primaryColor,
           scaffoldBackgroundColor: Colors.white,
           appBarTheme: AppBarTheme(
-            color: primaryColor,
+            color: secondaryColor,
             iconTheme: IconThemeData(color: Colors.white),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(

@@ -2,28 +2,30 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import 'package:toward_purpose/viewGoal.dart';
 
-import 'dataModel.dart';
+import 'dataProvider.dart';
+import 'styles.dart';
 
 final Color primaryColor = Color.fromRGBO(243, 198, 152, 1.0);
 final Color secondaryColor = Color.fromRGBO(140, 148, 89, 1.0);
 final Color accentColor = Color.fromRGBO(210, 130, 90, 1.0);
 
-class GoalScreen extends StatefulWidget {
-  const GoalScreen({Key? key}) : super(key: key);
+class GoalDefine extends StatefulWidget {
+  const GoalDefine({Key? key}) : super(key: key);
 
   @override
-  _GoalScreenState createState() => _GoalScreenState();
+  _GoalDefineState createState() => _GoalDefineState();
 }
 
-class _GoalScreenState extends State<GoalScreen> {
+class _GoalDefineState extends State<GoalDefine> {
   // final _formKey = GlobalKey<FormState>();
   final _textEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final dataBox = Hive.box<dataModel>('dataBox');
+    final dataProvider = context.watch<DataProvider>();
+    final data = dataProvider.data;
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,7 +47,7 @@ class _GoalScreenState extends State<GoalScreen> {
             fit: BoxFit.fitWidth,
             child: Text(
               'What is it\nthat you want?',
-              style: Theme.of(context).textTheme.displayLarge,
+              style: Gruppolarge(),
             ),
           ),
           Padding(
@@ -63,9 +65,9 @@ class _GoalScreenState extends State<GoalScreen> {
               onPressed: () {
                 final text = _textEditingController.text;
                 if (text.isNotEmpty) {
-                  final data = dataBox.get('data') ?? dataModel();
                   data.goalStatement = text;
-                  dataBox.put('data', data);
+                  data.generateId();
+                  dataProvider.saveData();
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => ViewGoal()),
@@ -98,7 +100,7 @@ class _GoalScreenState extends State<GoalScreen> {
               alignment: Alignment.bottomCenter,
               child: Container(
                 width: double.infinity,
-                color: primaryColor.withOpacity(0.5),
+                color: primaryColor.withOpacity(0.2),
                 child: Padding(
                   padding: EdgeInsets.all(4.0),
                   child: GoalText(),
@@ -120,14 +122,12 @@ class GoalText extends StatefulWidget {
 
 class _GoalTextState extends State<GoalText> {
   String _currentGoal = getRandomPersonalGoal(personalGoals);
-  bool _showFirst = true;
 
   @override
   void initState() {
     super.initState();
-    Timer.periodic(Duration(seconds: 7), (_) {
+    Timer.periodic(Duration(seconds: 3), (_) {
       setState(() {
-        _showFirst = !_showFirst;
         _currentGoal = getRandomPersonalGoal(personalGoals);
       });
     });
@@ -135,20 +135,10 @@ class _GoalTextState extends State<GoalText> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedCrossFade(
-      duration: Duration(milliseconds: 700),
-      crossFadeState:
-          _showFirst ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-      firstChild: Text(
-        _currentGoal,
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 24.0, color: accentColor),
-      ),
-      secondChild: Text(
-        getRandomPersonalGoal(personalGoals),
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 24.0, color: accentColor),
-      ),
+    return Text(
+      _currentGoal,
+      textAlign: TextAlign.center,
+      style: GruppoMedium().copyWith(color: accentColor),
     );
   }
 }

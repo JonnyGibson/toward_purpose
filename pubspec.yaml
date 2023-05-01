@@ -8,16 +8,26 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  hive: ^2.2.3
   path_provider: ^2.0.14
   build_runner: ^2.1.4
-  hive_generator: 
+  font_awesome_flutter: ^10.4.0
+  awesome_extensions: ^2.0.7  
+  google_fonts: ^4.0.4
+  provider: ^6.0.5
+  uuid: ^3.0.4
+  intl: ^0.18.1
+  cupertino_icons: ^1.0.2 
+  fluttertoast: ^8.0.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+
 flutter:
+  uses-material-design: true
   assets:
     - assets/
-  # add any additional Flutter-specific settings here

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-
-import 'goalScreen.dart';
+import 'package:provider/provider.dart';
+import 'package:toward_purpose/generateTestData.dart';
+import 'package:toward_purpose/viewGoal.dart';
+import 'dataProvider.dart';
+import 'styles.dart';
+import 'goalDefine.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -41,7 +45,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   fit: BoxFit.fitWidth,
                   child: Text(
                     'Toward',
-                    style: Theme.of(context).textTheme.displayLarge,
+                    style: Gruppolarge(),
                   ),
                 ),
               ),
@@ -51,7 +55,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   fit: BoxFit.fitWidth,
                   child: Text(
                     'Purpose',
-                    style: Theme.of(context).textTheme.displayLarge,
+                    style: Gruppolarge(),
                   ),
                 ),
               ),
@@ -63,7 +67,7 @@ class _WelcomePageState extends State<WelcomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GoalScreen()),
+                  MaterialPageRoute(builder: (context) => GoalDefine()),
                 );
               },
               child: Padding(
@@ -72,6 +76,35 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
             ),
           )),
+          Expanded(
+            child: Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  var testData = generateTestData();
+                  final dataProvider = context.read<DataProvider>();
+                  dataProvider.clearData();
+                  dataProvider.data = testData;
+                  dataProvider.saveData();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ViewGoal()),
+                  );
+                },
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Text('Generate Test Data'),
+                ),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
