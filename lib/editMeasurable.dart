@@ -19,7 +19,7 @@ class EditMeasurable extends StatefulWidget {
 class _EditMeasurableState extends State<EditMeasurable> {
   late DataProvider dataProvider;
   late Measurable measurable;
-  late TextEditingController _nameController;
+  late TextEditingController _measureableNameController;
   late int? originalTarget;
 
   @override
@@ -29,7 +29,8 @@ class _EditMeasurableState extends State<EditMeasurable> {
     var measurables = dataProvider.data.measurables!;
 
     measurable = measurables.firstWhere((m) => m.id == widget.id);
-    _nameController = TextEditingController(text: measurable.name ?? '');
+    _measureableNameController =
+        TextEditingController(text: measurable.name ?? '');
     originalTarget = measurable.targetWeeklyHours;
   }
 
@@ -49,6 +50,20 @@ class _EditMeasurableState extends State<EditMeasurable> {
     });
   }
 
+  void editMeasurable(BuildContext context, String measurableId, String name,
+      int targetWeeklyHours) {
+    final dataProvider = Provider.of<DataProvider>(context, listen: false);
+    final data = dataProvider.data;
+    var mes =
+        data.measurables?.firstWhere((element) => element.id == measurableId);
+    mes?.name = name;
+    mes?.targetWeeklyHours = targetWeeklyHours;
+
+    setState(() {
+      dataProvider.saveData();
+    });
+  }
+
   List<Activity?>? getActivitiesByMeasureId() {
     final allActivities =
         dataProvider.data.days?.expand((day) => day.activities ?? []).toList();
@@ -60,15 +75,103 @@ class _EditMeasurableState extends State<EditMeasurable> {
       ?..sort((a, b) => b!.date.compareTo(a!.date));
   }
 
-  List<int> options = [1, 2, 3, 4, 5, 6];
+  List<int> options = [1, 2, 3, 4, 5, 6, 7];
   List<String> optionsText = [
     '1 hour',
     '2 hours',
     '3 hours',
     '4 hours',
     '5 hours',
-    '6 hours'
+    '6 hours',
+    '7 hours'
   ];
+
+  List<int> mesOptions = [0, 1, 3, 5, 7, 15];
+  List<String> mesOptionsText = [
+    'None',
+    '1 hour',
+    '3 hours',
+    '5 hours',
+    '7 hours',
+    '15 hours'
+  ];
+
+  void showEditMeasurableDialog(BuildContext context) {
+    // TextEditingController nameController = TextEditingController();
+    // int targetWeeklyHours = 0;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Edit Goal Details"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _measureableNameController,
+                decoration: InputDecoration(
+                  hintText: "Edit Title",
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Weekly Target Hours",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    DropdownButtonFormField<int>(
+                      value: originalTarget,
+                      items: List.generate(
+                        mesOptions.length,
+                        (index) => DropdownMenuItem(
+                          value: mesOptions[index],
+                          child: Text(mesOptionsText[index]),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        originalTarget = value!;
+                      },
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 12,
+                        ),
+                      ),
+                      icon: Icon(FontAwesomeIcons.bullseye),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                String name = _measureableNameController.text;
+                if (name.isNotEmpty)
+                  editMeasurable(
+                      context, measurable.id.toString(), name, originalTarget!);
+                Navigator.pop(context);
+              },
+              child: Text("Save"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void showAddActivityDialog(BuildContext context) {
     TextEditingController nameController = TextEditingController();
@@ -197,17 +300,24 @@ class _EditMeasurableState extends State<EditMeasurable> {
         ),
         child: Column(
           children: [
-            Container(
-                color: secondaryColor.withOpacity(0.3),
-                child: Column(
-                  children: [
-                    Text(
-                      "Goal:",
-                      style: GruppoMedium(),
-                    ),
-                    Text(measurable.name ?? "Not Set"),
-                  ],
-                ).paddingLTRB(0, 20, 0, 20)),
+            InkWell(
+                onTap: () {
+                  showEditMeasurableDialog(context);
+                },
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                      color: secondaryColor.withOpacity(0.3),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Goal:",
+                            style: GruppoMedium(),
+                          ),
+                          Text(measurable.name ?? "Not Set"),
+                        ],
+                      ).paddingLTRB(0, 20, 0, 20)),
+                )),
             Expanded(
                 child: ListView(
               children: <Widget>[

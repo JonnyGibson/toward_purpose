@@ -64,7 +64,8 @@ List<Activity> generateActivities(
 }
 
 Activity generateActivity(Measurable measurable, Random rng, DateTime date) {
-  final name = "Activity ${Uuid().v4().substring(0, 5)}";
+  final name =
+      "${measurable.id?.substring(0, 3)} Activity ${Uuid().v4().substring(0, 5)}";
   final hours = rng.nextInt(4) +
       1; // Generates a random integer between 1 and 4 inclusive
   final activity = Activity(
