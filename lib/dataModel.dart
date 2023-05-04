@@ -43,14 +43,19 @@ class dataModel {
     if (days == null) {
       return null;
     }
-    return days!.firstWhere(
-      (day) => matchTime
+    var dayExists = days!.any((day) => matchTime
+        ? day.date == date
+        : day.date!.year == date.year &&
+            day.date!.month == date.month &&
+            day.date!.day == date.day);
+    if (dayExists)
+      return days!.firstWhere((day) => matchTime
           ? day.date == date
           : day.date!.year == date.year &&
               day.date!.month == date.month &&
-              day.date!.day == date.day,
-      orElse: () => Day(),
-    );
+              day.date!.day == date.day);
+
+    return null;
   }
 
   List<Day?> getDays(List<DateTime> dates, {bool matchTime = false}) {
@@ -172,7 +177,6 @@ class Activity {
     this.measurable_id,
     this.hours,
     DateTime? date,
-    String? formatedDate,
   })  : date = date ?? DateTime.now(),
         formatedDate = formatDate(date);
 
@@ -214,5 +218,6 @@ class Activity {
 
   void generateId() {
     id = const Uuid().v4();
+    formatedDate = formatDate(date);
   }
 }

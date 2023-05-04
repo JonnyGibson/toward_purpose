@@ -38,13 +38,21 @@ class _EditMeasurableState extends State<EditMeasurable> {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     final data = dataProvider.data;
 
-    var day = data.findOrCreateDay(DateTime.now());
-    if (day.activities == null) day.activities = [];
-
     final activity =
         Activity(name: name, hours: _hours, measurable_id: measurable.id);
     activity.generateId();
-    day.activities?.add(activity);
+
+    if (data.days?.doesDayExist(DateTime.now()) ?? false) {
+      data.addActivityToDay(DateTime.now(), activity);
+    } else {
+      var newDay = Day(date: DateTime.now());
+      if (data.days == null) data.days = [];
+      data.days?.add(newDay);
+      newDay.activities = [];
+      newDay.activities?.add(activity);
+    }
+    ;
+
     setState(() {
       dataProvider.saveData();
     });

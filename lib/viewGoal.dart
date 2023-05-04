@@ -7,6 +7,7 @@ import 'package:toward_purpose/dailyLog.dart';
 import 'dataModel.dart';
 import 'dataProvider.dart';
 import 'dataStorage.dart';
+import 'dialogs.dart';
 import 'editMeasurable.dart';
 import 'styles.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -63,7 +64,7 @@ class _ViewGoalState extends State<ViewGoal> {
     final data = dataProvider.data;
     return data.measurables?.map((element) {
       return SizedBox(
-        height: 150,
+        height: 140,
         child: InkWell(
           onTap: () async {
             await Navigator.push(
@@ -96,7 +97,6 @@ class _ViewGoalState extends State<ViewGoal> {
                       SizedBox(height: 5),
                       Text(
                           '${data.getActivityHoursLast7DaysPerMeasureable(element.id)} hours this week'),
-                      Text('Target: ${element.targetWeeklyHours} hours'),
                     ],
                   ),
                 ],
@@ -216,17 +216,71 @@ class _ViewGoalState extends State<ViewGoal> {
     final dataProvider = context.watch<DataProvider>();
     final data = dataProvider.data;
     return Scaffold(
+      drawer: Drawer(
+        child: Column(
+          children: [
+            DrawerHeader(
+              child: Container(
+                height: 200, // Set the height of the header
+                width: double
+                    .infinity, // Set the width of the header to full width
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage("assets/toward.png"),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text(
+                "Home",
+                style: GruppoMedium(),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.today),
+              title: Text(
+                "View Daily Log",
+                style: GruppoMedium(),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DailyLog()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text(
+                "Settings",
+                style: GruppoMedium(),
+              ),
+              onTap: () {
+                // Update the state of the app.
+                // ...
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.delete),
+              title: Text(
+                "Delete data",
+                style: GruppoMedium(),
+              ),
+              onTap: () {
+                _confirmResetData();
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: Text('Measurable Goals'),
-        leading: IconButton(
-          icon: Icon(Icons.calendar_month_sharp),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => DailyLog()),
-            );
-          },
-        ),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
@@ -237,52 +291,51 @@ class _ViewGoalState extends State<ViewGoal> {
         ],
       ),
       body: Column(children: [
-        SizedBox(height: 30),
+        SizedBox(
+          width: double.infinity,
+          child: Container(
+              color: secondaryColor.withOpacity(0.3),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/toward.png',
+                        fit: BoxFit.fitWidth,
+                        width: MediaQuery.of(context).size.width / 5,
+                      ),
+                      Flexible(
+                          child: Text(
+                        data.goalStatement ?? "NotSet",
+                        textAlign: TextAlign.center,
+                        style: GruppoMedium(),
+                      ).paddingAll(5))
+                    ],
+                  )
+                ],
+              ).paddingLTRB(0, 20, 0, 20)),
+        ),
+        // SizedBox(height: 30),
         Expanded(
-          flex: 2,
+          // flex: 3,
           child: Column(
             children: [
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/toward.png',
-                    fit: BoxFit.fitWidth,
-                    width: MediaQuery.of(context).size.width / 5,
-                  ),
-                  Container(
-                    constraints: BoxConstraints(
-                      minHeight: 100,
-                      maxWidth: MediaQuery.of(context).size.width / 1.3,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0x80B3E1DC),
-                          Color(0x806E6F8F),
-                          Color(0x809AAE43),
-                          Color(0x809AAE43),
-                          Color(0x806E6F8F),
-                        ],
-                        stops: [
-                          0.0,
-                          0.25,
-                          0.5,
-                          0.75,
-                          1.0,
-                        ],
+              Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      showAddDayDialog(context);
+                    },
+                    icon: Icon(Icons.calendar_month),
+                    label: Text("Daily check in"),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: redyColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0),
                       ),
-                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(color: secondaryColor, width: 2),
                     ),
-                    child: Text(
-                      data.goalStatement ?? "NotSet",
-                      textAlign: TextAlign.center,
-                      style: GruppoMedium(),
-                    ).paddingAll(5),
-                  ),
-                ],
-              ),
+                  )).paddingLTRB(0, 10, 15, 0),
             ],
           ),
         ),
@@ -294,13 +347,6 @@ class _ViewGoalState extends State<ViewGoal> {
               ],
             )),
       ]),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.red,
-        onPressed: () {
-          _confirmResetData();
-        },
-        child: Icon(FontAwesomeIcons.trash),
-      ),
     );
   }
 }
