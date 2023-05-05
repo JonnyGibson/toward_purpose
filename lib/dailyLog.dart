@@ -1,3 +1,4 @@
+import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -5,6 +6,8 @@ import 'dataModel.dart';
 import 'dataProvider.dart';
 import 'extensions.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import 'styles.dart';
 
 class DailyLog extends StatefulWidget {
   const DailyLog({Key? key}) : super(key: key);
@@ -93,6 +96,7 @@ class _DailyLogState extends State<DailyLog> {
         itemBuilder: (BuildContext context, int index) {
           return Card(
             child: ExpansionTile(
+              initiallyExpanded: index == 0,
               title: Row(
                 children: [
                   Expanded(
@@ -111,8 +115,13 @@ class _DailyLogState extends State<DailyLog> {
               ),
               children: [
                 ListTile(
-                  title: Text(days[index]?.qualitativeComment ?? ""),
-                ),
+                  title: Flexible(
+                      child: Text(days[index]?.qualitativeComment ?? "")),
+                  subtitle: Text(
+                    "Purposeful Activity hours :4",
+                    style: GruppoSmall().copyWith(color: secondaryColor),
+                  ).paddingLTRB(0, 5, 0, 0),
+                )
               ],
             ),
           );

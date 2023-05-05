@@ -31,14 +31,28 @@ void showAddDayDialog(BuildContext context) {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                    hintText:
-                        day?.qualitativeComment ?? "Qualitative Statement",
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(5.0),
                   ),
-                  onChanged: (value) {
-                    day?.qualitativeComment = value;
-                  },
+                  child: TextField(
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText:
+                          day?.qualitativeComment ?? "Qualitative Statement",
+                      border: InputBorder
+                          .none, // Remove the default border from the TextField
+                      contentPadding:
+                          EdgeInsets.all(10.0), // Add padding to the TextField
+                    ),
+                    onChanged: (value) {
+                      day?.qualitativeComment = value;
+                    },
+                  ),
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: 16),
@@ -91,8 +105,15 @@ void showAddDayDialog(BuildContext context) {
             actions: [
               TextButton(
                 onPressed: () {
+                  if ((day?.dailyScore == 0) &&
+                      (day?.qualitativeComment == "")) {
+                    dataProvider.data.days
+                        ?.removeWhere((element) => element.id == day?.id);
+                    dataProvider.saveData();
+                  }
                   day?.dailyScore = originalScore;
                   day?.qualitativeComment = originalText;
+
                   Navigator.pop(context);
                 },
                 child: Text("Cancel"),
