@@ -9,11 +9,15 @@ import 'dataProvider.dart';
 import 'dataStorage.dart';
 import 'dialogs.dart';
 import 'editMeasurable.dart';
+import 'extensions.dart';
 import 'styles.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:toward_purpose/viewGoal.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
+import 'dart:math' as math;
 
 class ViewGoal extends StatefulWidget {
   @override
@@ -24,6 +28,13 @@ class _ViewGoalState extends State<ViewGoal> {
   @override
   void initState() {
     super.initState();
+  }
+
+  var displayDate = DateTime.now();
+  void moveDisplayDate(int moveBy) {
+    setState(() {
+      displayDate = displayDate.add(Duration(days: moveBy));
+    });
   }
 
   Future<void> _confirmResetData() async {
@@ -59,50 +70,60 @@ class _ViewGoalState extends State<ViewGoal> {
     }
   }
 
-  List<SizedBox>? getActivities(BuildContext context) {
+  void updateDayMeasurables(BuildContext context, Day? _day) {
+    final dataProvider = Provider.of<DataProvider>(context, listen: false);
+    final data = dataProvider.data;
+    int index = data.days!.indexWhere((x) => x.id == _day?.id);
+    if (index != -1) {
+      data.days![index] = _day!;
+      dataProvider.saveData();
+    }
+  }
+
+  List<Container>? getActivities(BuildContext context, Day? day) {
     final dataProvider = context.watch<DataProvider>();
     final data = dataProvider.data;
-    return data.measurables?.map((element) {
-      return SizedBox(
-        height: 140,
-        child: InkWell(
-          onTap: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => EditMeasurable(id: element.id ?? "")),
-            );
-            setState(() {});
-          },
-          child: Card(
-            child: ListTile(
-              title: Text(
-                element.name ?? "Not Set",
-                style: GruppoMedium(),
-              ),
-              subtitle: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Icon(FontAwesomeIcons.clock),
-                      SizedBox(height: 5),
-                      Text(
-                          '${data.getToday(DateTime.now())?.getTotalActivityHoursPerMeasurable(element.id) ?? 0} hours today'),
-                    ],
+    List<int> _values = [1, 2, 3, 4, 5];
+    return day?.measurables?.map((element) {
+      return Container(
+        child: Card(
+          child: ListTile(
+                  title: Text(
+                    element.name ?? "Not Set",
+                    style: GruppoSmall(),
+                    textAlign: TextAlign.center,
                   ),
-                  Column(
+                  subtitle: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Icon(FontAwesomeIcons.clock),
-                      SizedBox(height: 5),
-                      Text(
-                          '${data.getActivityHoursLast7DaysPerMeasureable(element.id)} hours this week'),
+                      Container(
+                        child: Row(
+                          children: List.generate(
+                            _values.length,
+                            (index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    element.engagement = index + 1;
+
+                                    dataProvider.saveData();
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.star,
+                                  color: element.engagement > index
+                                      ? Colors.amber
+                                      : Colors.grey,
+                                ).paddingAll(3),
+                              );
+                            },
+                          ),
+                        ),
+                      )
                     ],
-                  ),
-                ],
-              ).paddingLTRB(0, 15, 0, 5),
-            ).paddingLTRB(0, 5, 0, 5),
-          ),
+                  ).paddingLTRB(0, 10, 0, 0))
+              .paddingLTRB(0, 5, 0, 5),
         ),
       );
     }).toList();
@@ -117,9 +138,9 @@ class _ViewGoalState extends State<ViewGoal> {
       targetWeeklyHours: targetWeeklyHours,
     );
     measurable.generateId();
-    final measurables = data.measurables ?? [];
+    final measurables = data.measurableTemplates ?? [];
     measurables.add(measurable);
-    data.measurables = measurables;
+    data.measurableTemplates = measurables;
 
     setState(() {
       dataProvider.saveData();
@@ -215,89 +236,123 @@ class _ViewGoalState extends State<ViewGoal> {
   Widget build(BuildContext context) {
     final dataProvider = context.watch<DataProvider>();
     final data = dataProvider.data;
+    var day = data.getToday(displayDate);
+    if (day == null) {
+      day = data.newDay(displayDate);
+      if (data.days == null) data.days = [];
+      data.days?.add(day);
+      dataProvider.saveData();
+    }
+    TextEditingController _textEditingController =
+        TextEditingController(text: day.qualitativeComment);
+    List<int> _dayValues = [-2, -1, 0, 1, 2];
     return Scaffold(
-      drawer: Drawer(
-        child: Column(
-          children: [
-            DrawerHeader(
-              child: Container(
-                height: 200, // Set the height of the header
-                width: double
-                    .infinity, // Set the width of the header to full width
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage("assets/toward.png"),
-                    fit: BoxFit.cover,
+        drawer: Drawer(
+          child: Column(
+            children: [
+              DrawerHeader(
+                child: Container(
+                  height: 200, // Set the height of the header
+                  width: double
+                      .infinity, // Set the width of the header to full width
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/toward.png"),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
-            ),
-            ListTile(
-              leading: Icon(Icons.home),
-              title: Text(
-                "Home",
-                style: GruppoMedium(),
+              ListTile(
+                leading: Icon(Icons.home),
+                title: Text(
+                  "Home",
+                  style: GruppoMedium(),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                },
               ),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.today),
-              title: Text(
-                "View Daily Log",
-                style: GruppoMedium(),
+              ListTile(
+                leading: Icon(Icons.today),
+                title: Text(
+                  "View Daily Log",
+                  style: GruppoMedium(),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DailyLog()),
+                  );
+                },
               ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DailyLog()),
-                );
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text(
-                "Settings",
-                style: GruppoMedium(),
+              ListTile(
+                leading: Icon(Icons.settings),
+                title: Text(
+                  "Settings",
+                  style: GruppoMedium(),
+                ),
+                onTap: () {
+                  // Update the state of the app.
+                  // ...
+                },
               ),
-              onTap: () {
-                // Update the state of the app.
-                // ...
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.delete),
-              title: Text(
-                "Delete data",
-                style: GruppoMedium(),
+              ListTile(
+                leading: Icon(Icons.delete),
+                title: Text(
+                  "Delete data",
+                  style: GruppoMedium(),
+                ),
+                onTap: () {
+                  _confirmResetData();
+                },
               ),
-              onTap: () {
-                _confirmResetData();
+              Container(
+                child: FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      final packageInfo = snapshot.data!;
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('App Name: ${packageInfo.appName}'),
+                          Text('Package Name: ${packageInfo.packageName}'),
+                          Text('Version: ${packageInfo.version}'),
+                          Text('Build Number: ${packageInfo.buildNumber}'),
+                        ],
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    } else {
+                      return CircularProgressIndicator();
+                    }
+                  },
+                ),
+              ).paddingLTRB(0, 50, 0, 0),
+            ],
+          ),
+        ),
+        appBar: AppBar(
+          title: Text('Daily Commitments'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.calendar_month),
+              onPressed: () {
+                //  showAddMeasurableDialog(context);
               },
             ),
           ],
         ),
-      ),
-      appBar: AppBar(
-        title: Text('Measurable Goals'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              showAddMeasurableDialog(context);
-            },
-          ),
-        ],
-      ),
-      body: Column(children: [
-        SizedBox(
-          width: double.infinity,
-          child: Container(
-              color: secondaryColor.withOpacity(0.3),
-              child: Column(
-                children: [
-                  Row(
+        body: Column(
+          children: [
+            Expanded(
+              flex: 3,
+              child: Container(
+                  color: secondaryColor.withOpacity(0.3),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
                         'assets/toward.png',
@@ -305,48 +360,152 @@ class _ViewGoalState extends State<ViewGoal> {
                         width: MediaQuery.of(context).size.width / 5,
                       ),
                       Flexible(
-                          child: Text(
-                        data.goalStatement ?? "NotSet",
-                        textAlign: TextAlign.center,
-                        style: GruppoMedium(),
-                      ).paddingAll(5))
-                    ],
-                  )
-                ],
-              ).paddingLTRB(0, 20, 0, 20)),
-        ),
-        // SizedBox(height: 30),
-        Expanded(
-          // flex: 3,
-          child: Column(
-            children: [
-              Align(
-                  alignment: Alignment.centerRight,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      showAddDayDialog(context);
-                    },
-                    icon: Icon(Icons.calendar_month),
-                    label: Text("Daily check in"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: redyColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18.0),
+                        child: Text(
+                          data.goalStatement ?? "NotSet",
+                          textAlign: TextAlign.center,
+                          style: GruppoMedium(),
+                        ).paddingAll(5),
                       ),
-                      side: BorderSide(color: secondaryColor, width: 2),
+                    ],
+                  )),
+            ),
+            Expanded(
+                flex: 1,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: secondaryColor.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: secondaryColor,
+                      width: 2,
                     ),
-                  )).paddingLTRB(0, 10, 15, 0),
-            ],
-          ),
-        ),
-        Expanded(
-            flex: 8,
-            child: ListView(
-              children: [
-                ...?getActivities(context),
-              ],
-            )),
-      ]),
-    );
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: Transform.rotate(
+                          angle: 180 *
+                              math.pi /
+                              180, // Rotate the image 180 degrees
+                          child: Image.asset(
+                            'assets/toward.png',
+                            width: 32,
+                            height: 32,
+                          ),
+                        ),
+                        onPressed: () {
+                          moveDisplayDate(-1);
+                        },
+                      ),
+                      Text(
+                        formatDate(day.date),
+                        textAlign: TextAlign.left,
+                        style: GruppoSmall().copyWith(color: redyColor),
+                      ),
+                      IconButton(
+                        icon: Image.asset(
+                          'assets/toward.png',
+                          width: 32,
+                          height: 32,
+                        ),
+                        onPressed: () {
+                          if (!displayDate.isToday) moveDisplayDate(1);
+                        },
+                      ),
+                    ],
+                  ),
+                  // color: secondaryColor.withOpacity(0.25)
+                ).paddingLTRB(10, 4, 10, 0)),
+            Expanded(
+              flex: 10,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: secondaryColor.withOpacity(0.25),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: secondaryColor,
+                    width: 2,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text("Rate engagement with goals").paddingLTRB(0, 0, 0, 10),
+                    Expanded(
+                      child: ListView(
+                        children: [
+                          ...?getActivities(context, day),
+                          ListTile(
+                              title: Align(
+                                  alignment: Alignment.center,
+                                  child: OutlinedButton.icon(
+                                    onPressed: () {
+                                      showAddDayDialog(context);
+                                    },
+                                    icon: Icon(Icons.calendar_month),
+                                    label: Text("Daily check in"),
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: redyColor,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(18.0),
+                                      ),
+                                      side: BorderSide(
+                                          color: secondaryColor, width: 2),
+                                    ),
+                                  )).paddingLTRB(0, 0, 0, 10),
+                              subtitle: Column(children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: _dayValues.map((value) {
+                                    final opacity = {
+                                          -2: 0.4,
+                                          -1: 0.5,
+                                          0: 0.6,
+                                          1: 0.8,
+                                          2: 1.0,
+                                        }[value] ??
+                                        1.0;
+                                    return GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          day?.dailyScore = value;
+                                          dataProvider.saveData();
+                                        });
+                                      },
+                                      child: Container(
+                                        width: 40,
+                                        height: 40,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          border:
+                                              Border.all(color: Colors.grey),
+                                          color: day?.dailyScore == value
+                                              ? secondaryColor
+                                                  .withOpacity(opacity)
+                                              : null,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            value.toString(),
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                                      ).paddingAll(3),
+                                    );
+                                  }).toList(),
+                                ),
+                                Text(day.qualitativeComment ?? "")
+                                    .paddingAll(10)
+                              ]))
+                        ],
+                      ),
+                    ),
+                  ],
+                ).paddingLTRB(10, 10, 10, 10),
+              ).paddingAll(10),
+            ),
+          ],
+        ));
   }
 }

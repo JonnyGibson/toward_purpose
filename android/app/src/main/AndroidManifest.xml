@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.toward_purpose">
+    package="com.jagprojects.toward_purpose">
    <application
         android:label="toward_purpose"
         android:name="${applicationName}"

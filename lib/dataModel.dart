@@ -1,26 +1,23 @@
 import 'package:uuid/uuid.dart';
-
 import 'extensions.dart';
-
-//Assume date format to be yyyy-MM-dd
 
 class dataModel {
   String? id;
   String? goalStatement;
-  List<Measurable>? measurables;
+  List<Measurable>? measurableTemplates;
   List<Day>? days;
 
   dataModel({
     this.id,
     this.goalStatement,
-    this.measurables,
+    this.measurableTemplates,
     this.days,
   });
 
   factory dataModel.fromJson(Map<String, dynamic> json) => dataModel(
         id: json['id'] as String?,
         goalStatement: json['goalStatement'] as String?,
-        measurables: (json['measurables'] as List<dynamic>?)
+        measurableTemplates: (json['measurables'] as List<dynamic>?)
             ?.map((e) => Measurable.fromJson(e as Map<String, dynamic>))
             .toList(),
         days: (json['days'] as List<dynamic>?)
@@ -31,7 +28,7 @@ class dataModel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'goalStatement': goalStatement,
-        'measurables': measurables?.map((e) => e.toJson()).toList(),
+        'measurables': measurableTemplates?.map((e) => e.toJson()).toList(),
         'days': days?.map((e) => e.toJson()).toList(),
       };
 
@@ -70,43 +67,61 @@ class dataModel {
     return last7Days;
   }
 
-  int getActivityHoursLast7DaysPerMeasureable(String? measurableId) {
-    int totalActivityHours = 0;
-    getLast7Days().forEach((element) {
-      getToday(element)?.activities?.forEach((act) {
-        if (act.measurable_id == measurableId)
-          totalActivityHours += act.hours ?? 0;
-      });
-    });
-    return totalActivityHours;
+  Day newDay(DateTime date) {
+    Day day = Day();
+    day.generateId();
+    day.date = date;
+    day.dailyScore = 0;
+    day.measurables = this
+        .measurableTemplates
+        ?.map((element) => Measurable(
+              typeId: element.typeId,
+              uniqueId: Uuid().v4(),
+              name: element.name,
+              targetWeeklyHours: 0,
+              engagement: 0,
+            ))
+        .toList();
+    return day;
   }
 }
 
 class Measurable {
-  String? id;
+  String? uniqueId;
+  String? typeId;
   String? name;
-  int? targetWeeklyHours;
+  int targetWeeklyHours;
+  int engagement;
 
-  Measurable({
-    this.id,
-    this.name,
-    this.targetWeeklyHours,
-  });
+  Measurable(
+      {this.typeId,
+      this.uniqueId,
+      this.name,
+      this.targetWeeklyHours = 0,
+      this.engagement = 0});
 
   factory Measurable.fromJson(Map<String, dynamic> json) => Measurable(
-        id: json['id'] as String?,
+        uniqueId: json['uniqueId'] as String?,
+        typeId: json['id'] as String?,
         name: json['name'] as String?,
-        targetWeeklyHours: json['targetWeeklyHours'] as int?,
+        targetWeeklyHours: json['targetWeeklyHours'] as int,
+        engagement: json['engagement'] as int,
       );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
+        'uniqueId': uniqueId,
+        'typeId': typeId,
         'name': name,
         'targetWeeklyHours': targetWeeklyHours,
+        'engagement': engagement,
       };
 
   void generateId() {
-    id = const Uuid().v4();
+    typeId = const Uuid().v4();
+  }
+
+  void generateUniqueId() {
+    uniqueId = const Uuid().v4();
   }
 }
 
@@ -115,14 +130,14 @@ class Day {
   DateTime? date;
   int? dailyScore;
   String? qualitativeComment;
-  List<Activity>? activities;
+  List<Measurable>? measurables;
 
   Day({
     this.id,
     this.date,
     this.dailyScore,
     this.qualitativeComment,
-    this.activities,
+    this.measurables,
   });
 
   factory Day.fromJson(Map<String, dynamic> json) => Day(
@@ -132,8 +147,8 @@ class Day {
             : null,
         dailyScore: json['dailyScore'] as int?,
         qualitativeComment: json['qualitativeComment'] as String?,
-        activities: (json['activities'] as List<dynamic>?)
-            ?.map((e) => Activity.fromJson(e as Map<String, dynamic>))
+        measurables: (json['measurables'] as List<dynamic>?)
+            ?.map((e) => Measurable.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
 
@@ -142,25 +157,25 @@ class Day {
         'date': date?.toIso8601String(),
         'dailyScore': dailyScore,
         'qualitativeComment': qualitativeComment,
-        'activities': activities?.map((a) => a.toJson()).toList(),
+        'measurables': measurables?.map((a) => a.toJson()).toList(),
       };
 
   void generateId() {
     id = const Uuid().v4();
   }
 
-  int getTotalActivityHoursPerMeasurable(String? measurableId) {
-    int totalHours = 0;
-    if (activities != null) {
-      for (Activity activity in activities!) {
-        if ((activity.hours != null) &&
-            (activity.measurable_id == measurableId)) {
-          totalHours += activity.hours!;
-        }
-      }
-    }
-    return totalHours;
-  }
+  // int getTotalActivityHoursPerMeasurable(String? measurableId) {
+  //   int totalHours = 0;
+  //   if (activities != null) {
+  //     for (Activity activity in activities!) {
+  //       if ((activity.hours != null) &&
+  //           (activity.measurable_id == measurableId)) {
+  //         totalHours += activity.hours!;
+  //       }
+  //     }
+  //   }
+  //   return totalHours;
+  // }
 }
 
 class Activity {

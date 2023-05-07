@@ -115,13 +115,18 @@ class _DailyLogState extends State<DailyLog> {
               ),
               children: [
                 ListTile(
-                  title: Flexible(
-                      child: Text(days[index]?.qualitativeComment ?? "")),
+                  title: Expanded(
+                    child: Text(
+                      days[index]?.qualitativeComment ?? "",
+                      overflow: TextOverflow
+                          .ellipsis, // Add this line to handle long text
+                    ),
+                  ),
                   subtitle: Text(
-                    "Purposeful Activity hours :4",
+                    "Purposeful Activity hours: 4",
                     style: GruppoSmall().copyWith(color: secondaryColor),
                   ).paddingLTRB(0, 5, 0, 0),
-                )
+                ),
               ],
             ),
           );
@@ -130,14 +135,14 @@ class _DailyLogState extends State<DailyLog> {
     );
   }
 
-  List<Activity?> getActivitiesByMeasureId(Measurable measurable) {
-    final allActivities =
-        dataProvider.data.days?.expand((day) => day.activities ?? []).toList();
+  // List<Activity?> getActivitiesByMeasureId(Measurable measurable) {
+  //   final allActivities =
+  //       dataProvider.data.days?.expand((day) => day.activities ?? []).toList();
 
-    return allActivities
-            ?.where((activity) => activity?.measurable_id == measurable.id)
-            .map((activity) => activity as Activity?)
-            .toList() ??
-        [];
-  }
+  //   return allActivities
+  //           ?.where((activity) => activity?.measurable_id == measurable.id)
+  //           .map((activity) => activity as Activity?)
+  //           .toList() ??
+  //       [];
+  // }
 }

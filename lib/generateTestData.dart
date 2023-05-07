@@ -9,27 +9,28 @@ dataModel generateTestData() {
           .reversed
           .toList();
   final measurable1 = Measurable(
-      id: Uuid().v4(),
-      name: "Intentionally and purposefully meditate",
+      typeId: Uuid().v4(),
+      name: "Intentionally and purposefully meditate a lot",
       targetWeeklyHours: [0, 1, 3, 5, 7, 15][Random().nextInt(
           6)]); // Generates a random integer between 0 and 5 inclusive to select the targetWeeklyHours value
   final measurable2 = Measurable(
-      id: Uuid().v4(),
+      typeId: Uuid().v4(),
       name: "Engage in moderate exercise",
       targetWeeklyHours: [0, 1, 3, 5, 7, 15][Random().nextInt(6)]);
   final measurable3 = Measurable(
-      id: Uuid().v4(),
+      typeId: Uuid().v4(),
       name: "Encourage deeper friend relationships",
       targetWeeklyHours: [0, 1, 3, 5, 7, 15][Random().nextInt(6)]);
   final measurables = [measurable1, measurable2, measurable3];
+
   final days = last14Days
       .sublist(0, 9)
       .map((date) => generateDay(date, measurables))
       .toList();
   final data = dataModel(
       goalStatement: "Intentionally improving general health and well-being",
-      measurables: measurables,
-      days: days);
+      measurableTemplates: measurables,
+      days: List.from(days));
   data.generateId();
   return data;
 }
@@ -48,9 +49,16 @@ Day generateDay(DateTime date, List<Measurable> measurables) {
                   : "It was beezer";
   final day = Day(
       date: date, dailyScore: score, qualitativeComment: qualitativeComment);
-  final activities =
-      measurables.expand((m) => generateActivities(m, rng, date)).toList();
-  day.activities = activities;
+  final engagement = rng.nextInt(5);
+  day.measurables = measurables
+      .map((element) => Measurable(
+            typeId: element.typeId,
+            uniqueId: Uuid().v4(),
+            name: element.name,
+            targetWeeklyHours: 0,
+            engagement: engagement,
+          ))
+      .toList();
   day.generateId();
   return day;
 }
@@ -65,12 +73,12 @@ List<Activity> generateActivities(
 
 Activity generateActivity(Measurable measurable, Random rng, DateTime date) {
   final name =
-      "${measurable.id?.substring(0, 3)} Activity ${Uuid().v4().substring(0, 5)}";
+      "${measurable.typeId?.substring(0, 3)} Activity ${Uuid().v4().substring(0, 5)}";
   final hours = rng.nextInt(4) +
       1; // Generates a random integer between 1 and 4 inclusive
   final activity = Activity(
     name: name,
-    measurable_id: measurable.id,
+    measurable_id: measurable.typeId,
     hours: hours,
     date: date,
   );
