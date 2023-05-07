@@ -17,9 +17,9 @@ extension DoesDayExist on List<Day> {
   bool doesDayExist(DateTime date) {
     return this.any(
       (day) =>
-          day.date?.year == date.year &&
-          day.date?.month == date.month &&
-          day.date?.day == date.day,
+          day.date.year == date.year &&
+          day.date.month == date.month &&
+          day.date.day == date.day,
     );
   }
 }

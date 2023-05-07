@@ -5,9 +5,6 @@ import 'package:provider/provider.dart';
 import 'dataModel.dart';
 import 'dataProvider.dart';
 import 'extensions.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-
-import 'styles.dart';
 
 class DailyLog extends StatefulWidget {
   const DailyLog({Key? key}) : super(key: key);
@@ -18,131 +15,193 @@ class DailyLog extends StatefulWidget {
 
 class _DailyLogState extends State<DailyLog> {
   late DataProvider dataProvider;
-  List<Day?> days = [];
+  //var weeks = [];
 
   @override
   void initState() {
     super.initState();
-    dataProvider = context.read<DataProvider>();
-    days = dataProvider.data.days!;
-    days.sort((a, b) {
-      if (a?.date == null || b?.date == null) {
-        // If either date is null, consider them equal
-        return 0;
-      }
-      return b!.date!.compareTo(a!.date!);
-    });
   }
 
   final Color primaryColor = Color.fromRGBO(243, 198, 152, 1.0);
   final Color secondaryColor = Color.fromRGBO(140, 148, 89, 1.0);
   final Color accentColor = Color.fromRGBO(210, 130, 90, 1.0);
+  List<List<Day>> weeks = [];
+  List<List<Day>> addDaysToWeeks(List<Day> days) {
+    List<List<Day>> weeks = [];
 
-  Widget getNumbers(int num) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        for (var i = -2; i <= 2; i++)
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              color: i == num ? secondaryColor : primaryColor,
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                i.toString(),
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
+    days.sort((a, b) => a.date.compareTo(b.date));
+
+    DateTime monday =
+        days[0].date.subtract(Duration(days: days[0].date.weekday - 1));
+    DateTime sunday = monday.add(Duration(days: 6));
+
+    List<Day> currentWeek = [];
+
+    for (int i = 0; i < days.length; i++) {
+      Day day = days[i];
+
+      if (day.date.isBefore(monday)) {
+        continue;
+      }
+
+      if (day.date.isAfter(sunday)) {
+        weeks.add(currentWeek);
+        currentWeek = [];
+
+        monday = monday.add(Duration(days: 7));
+        sunday = sunday.add(Duration(days: 7));
+      }
+
+      currentWeek.add(day);
+    }
+
+    if (currentWeek.isNotEmpty) {
+      weeks.add(currentWeek);
+    }
+
+    return weeks;
+  }
+
+  DateTime getMonday(DateTime date) {
+    if (date.weekday == DateTime.monday) {
+      return date;
+    }
+
+    // Calculate the number of days to subtract to get to the previous Monday
+    int daysToMonday = date.weekday - DateTime.monday;
+    if (daysToMonday < 0) {
+      daysToMonday += 7;
+    }
+
+    // Subtract the number of days to get to the previous Monday
+    return date.subtract(Duration(days: daysToMonday));
+  }
+
+  int getMedianDailyScore(List<Day> days) {
+    days.sort((a, b) => a.dailyScore!.compareTo(b.dailyScore ?? 0));
+
+    // Calculate the length of the list
+    int length = days.length;
+
+    // Calculate the median daily score
+    int medianDailyScore;
+    if (length % 2 == 0) {
+      int middleIndex = length ~/ 2;
+      medianDailyScore =
+          (days[middleIndex - 1].dailyScore! + days[middleIndex].dailyScore!) ~/
+              2;
+    } else {
+      int middleIndex = length ~/ 2;
+      medianDailyScore = days[middleIndex].dailyScore!;
+    }
+    return medianDailyScore;
   }
 
   @override
   Widget build(BuildContext context) {
+    final dataProvider = context.watch<DataProvider>();
+    final data = dataProvider.data;
+    weeks = addDaysToWeeks(data.days ?? []).reversed.toList();
     return Scaffold(
       appBar: AppBar(
-        title: Text('Daily Log'),
+        title: Text('Activity Log'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              Fluttertoast.showToast(
-                  msg: "Not Done Yet !",
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                  timeInSecForIosWeb: 3,
-                  backgroundColor: Colors.red,
-                  textColor: Colors.white,
-                  fontSize: 16.0);
-            },
-          ),
-        ],
       ),
       body: ListView.builder(
-        itemCount: days.length,
+        itemCount: weeks.length,
         itemBuilder: (BuildContext context, int index) {
-          return Card(
-            child: ExpansionTile(
-              initiallyExpanded: index == 0,
-              title: Row(
-                children: [
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text((formatDate(days[index]?.date))),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: getNumbers(days[index]?.dailyScore ?? 0),
-                    ),
-                  ),
-                ],
-              ),
+          var week = weeks[index];
+          int totalEngagement = week.fold(0, (acc, day) {
+            return acc +
+                day.measurables!.fold(0, (acc2, measurable) {
+                  return acc2 + measurable.engagement;
+                });
+          });
+          int totalPossibleEngagementCount =
+              (week[0].measurables!.length * 7) * 5;
+          double engagementPercentage =
+              (totalEngagement / totalPossibleEngagementCount) * 100;
+          var medianDailyScore = getMedianDailyScore(week);
+          List<int> _scorevalues = [-2, -1, 0, 1, 2];
+          return ListTile(
+            title: Text(
+                'Week of ${formatDate(getMonday(week[0].date), format: "dd MMM yyyy")} '),
+            subtitle: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListTile(
-                  title: Expanded(
-                    child: Text(
-                      days[index]?.qualitativeComment ?? "",
-                      overflow: TextOverflow
-                          .ellipsis, // Add this line to handle long text
-                    ),
+                SizedBox(
+                  height: 30,
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: primaryColor,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      FractionallySizedBox(
+                        widthFactor: engagementPercentage / 100,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: secondaryColor,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          engagementPercentage == 0
+                              ? 'No Engagement with goals'
+                              : 'Engagement with goals',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ).paddingLTRB(10, 0, 0, 0),
+                    ],
                   ),
-                  subtitle: Text(
-                    "Purposeful Activity hours: 4",
-                    style: GruppoSmall().copyWith(color: secondaryColor),
-                  ).paddingLTRB(0, 5, 0, 0),
-                ),
+                ).paddingAll(10),
+                Row(
+                  children: [
+                    Text("Average Daily Score:"),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _scorevalues.map((value) {
+                        return Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey),
+                            color: medianDailyScore == value
+                                ? secondaryColor
+                                : null,
+                          ),
+                          child: Center(
+                            child: Text(
+                              value.toString(),
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        ).paddingAll(3);
+                      }).toList(),
+                    ),
+                  ],
+                ).paddingLTRB(10, 5, 0, 10)
               ],
             ),
           );
         },
-      ),
+      ).paddingLTRB(0, 20, 0, 0),
     );
   }
-
-  // List<Activity?> getActivitiesByMeasureId(Measurable measurable) {
-  //   final allActivities =
-  //       dataProvider.data.days?.expand((day) => day.activities ?? []).toList();
-
-  //   return allActivities
-  //           ?.where((activity) => activity?.measurable_id == measurable.id)
-  //           .map((activity) => activity as Activity?)
-  //           .toList() ??
-  //       [];
-  // }
 }

@@ -42,15 +42,15 @@ class dataModel {
     }
     var dayExists = days!.any((day) => matchTime
         ? day.date == date
-        : day.date!.year == date.year &&
-            day.date!.month == date.month &&
-            day.date!.day == date.day);
+        : day.date.year == date.year &&
+            day.date.month == date.month &&
+            day.date.day == date.day);
     if (dayExists)
       return days!.firstWhere((day) => matchTime
           ? day.date == date
-          : day.date!.year == date.year &&
-              day.date!.month == date.month &&
-              day.date!.day == date.day);
+          : day.date.year == date.year &&
+              day.date.month == date.month &&
+              day.date.day == date.day);
 
     return null;
   }
@@ -68,9 +68,9 @@ class dataModel {
   }
 
   Day newDay(DateTime date) {
-    Day day = Day();
+    Day day = Day(date: date);
     day.generateId();
-    day.date = date;
+
     day.dailyScore = 0;
     day.measurables = this
         .measurableTemplates
@@ -127,14 +127,14 @@ class Measurable {
 
 class Day {
   String? id;
-  DateTime? date;
+  DateTime date;
   int? dailyScore;
   String? qualitativeComment;
   List<Measurable>? measurables;
 
   Day({
     this.id,
-    this.date,
+    required this.date,
     this.dailyScore,
     this.qualitativeComment,
     this.measurables,
@@ -142,9 +142,7 @@ class Day {
 
   factory Day.fromJson(Map<String, dynamic> json) => Day(
         id: json['id'] as String?,
-        date: json['date'] != null
-            ? DateTime.parse(json['date'] as String)
-            : null,
+        date: DateTime.parse(json['date'] as String),
         dailyScore: json['dailyScore'] as int?,
         qualitativeComment: json['qualitativeComment'] as String?,
         measurables: (json['measurables'] as List<dynamic>?)
@@ -154,7 +152,7 @@ class Day {
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'date': date?.toIso8601String(),
+        'date': date.toIso8601String(),
         'dailyScore': dailyScore,
         'qualitativeComment': qualitativeComment,
         'measurables': measurables?.map((a) => a.toJson()).toList(),

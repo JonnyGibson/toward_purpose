@@ -7,15 +7,15 @@ import 'package:uuid/uuid.dart';
 import 'dataModel.dart';
 import 'dataProvider.dart';
 
-void showAddDayDialog(BuildContext context) {
+void showAddDayDialog(BuildContext context, [DateTime? date]) {
   final dataProvider = context.read<DataProvider>();
   if (dataProvider.data.days == null) dataProvider.data.days = [];
 
-  var day = dataProvider.data.getToday(DateTime.now());
+  var day = dataProvider.data.getToday(date ?? DateTime.now());
   if (day == null) {
-    dataProvider.data.days
-        ?.add(Day(id: Uuid().v4(), date: DateTime.now(), dailyScore: 0));
-    day = dataProvider.data.getToday(DateTime.now());
+    dataProvider.data.days?.add(
+        Day(id: Uuid().v4(), date: date ?? DateTime.now(), dailyScore: 0));
+    day = dataProvider.data.getToday(date ?? DateTime.now());
   }
   var originalText = day?.qualitativeComment;
   var originalScore = day?.dailyScore;

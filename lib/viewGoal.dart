@@ -340,7 +340,10 @@ class _ViewGoalState extends State<ViewGoal> {
             IconButton(
               icon: Icon(Icons.calendar_month),
               onPressed: () {
-                //  showAddMeasurableDialog(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => DailyLog()),
+                );
               },
             ),
           ],
@@ -430,7 +433,10 @@ class _ViewGoalState extends State<ViewGoal> {
                 ),
                 child: Column(
                   children: [
-                    Text("Rate engagement with goals").paddingLTRB(0, 0, 0, 10),
+                    Text(
+                      "Rate engagement with goals",
+                      style: GruppoSmall().copyWith(color: redyColor),
+                    ).paddingLTRB(0, 0, 0, 10),
                     Expanded(
                       child: ListView(
                         children: [
@@ -440,7 +446,7 @@ class _ViewGoalState extends State<ViewGoal> {
                                   alignment: Alignment.center,
                                   child: OutlinedButton.icon(
                                     onPressed: () {
-                                      showAddDayDialog(context);
+                                      showAddDayDialog(context, day?.date);
                                     },
                                     icon: Icon(Icons.calendar_month),
                                     label: Text("Daily check in"),
