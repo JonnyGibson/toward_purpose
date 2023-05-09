@@ -10,12 +10,14 @@ import 'dataStorage.dart';
 import 'dialogs.dart';
 import 'editMeasurable.dart';
 import 'extensions.dart';
+import 'pastDaysCarousel.dart';
 import 'styles.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:toward_purpose/viewGoal.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 import 'dart:math' as math;
 
@@ -82,7 +84,6 @@ class _ViewGoalState extends State<ViewGoal> {
 
   List<Container>? getActivities(BuildContext context, Day? day) {
     final dataProvider = context.watch<DataProvider>();
-    final data = dataProvider.data;
     List<int> _values = [1, 2, 3, 4, 5];
     return day?.measurables?.map((element) {
       return Container(
@@ -243,9 +244,7 @@ class _ViewGoalState extends State<ViewGoal> {
       data.days?.add(day);
       dataProvider.saveData();
     }
-    TextEditingController _textEditingController =
-        TextEditingController(text: day.qualitativeComment);
-    List<int> _dayValues = [-2, -1, 0, 1, 2];
+
     return Scaffold(
         drawer: Drawer(
           child: Column(
@@ -351,7 +350,7 @@ class _ViewGoalState extends State<ViewGoal> {
         body: Column(
           children: [
             Expanded(
-              flex: 3,
+              flex: 2,
               child: Container(
                   color: secondaryColor.withOpacity(0.3),
                   child: Row(
@@ -373,143 +372,15 @@ class _ViewGoalState extends State<ViewGoal> {
                   )),
             ),
             Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: secondaryColor.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: secondaryColor,
-                      width: 2,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: Transform.rotate(
-                          angle: 180 *
-                              math.pi /
-                              180, // Rotate the image 180 degrees
-                          child: Image.asset(
-                            'assets/toward.png',
-                            width: 32,
-                            height: 32,
-                          ),
-                        ),
-                        onPressed: () {
-                          moveDisplayDate(-1);
-                        },
-                      ),
-                      Text(
-                        formatDate(day.date),
-                        textAlign: TextAlign.left,
-                        style: GruppoSmall().copyWith(color: redyColor),
-                      ),
-                      IconButton(
-                        icon: Image.asset(
-                          'assets/toward.png',
-                          width: 32,
-                          height: 32,
-                        ),
-                        onPressed: () {
-                          if (!displayDate.isToday) moveDisplayDate(1);
-                        },
-                      ),
-                    ],
-                  ),
-                  // color: secondaryColor.withOpacity(0.25)
-                ).paddingLTRB(10, 4, 10, 0)),
+              flex: 1, // set flex to a value greater than 0
+              child: Text(
+                "Rate engagement with goals",
+                style: GruppoSmall().copyWith(color: redyColor),
+              ).paddingLTRB(0, 10, 0, 0),
+            ),
             Expanded(
               flex: 10,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: secondaryColor.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: secondaryColor,
-                    width: 2,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "Rate engagement with goals",
-                      style: GruppoSmall().copyWith(color: redyColor),
-                    ).paddingLTRB(0, 0, 0, 10),
-                    Expanded(
-                      child: ListView(
-                        children: [
-                          ...?getActivities(context, day),
-                          ListTile(
-                              title: Align(
-                                  alignment: Alignment.center,
-                                  child: OutlinedButton.icon(
-                                    onPressed: () {
-                                      showAddDayDialog(context, day?.date);
-                                    },
-                                    icon: Icon(Icons.calendar_month),
-                                    label: Text("Daily check in"),
-                                    style: OutlinedButton.styleFrom(
-                                      foregroundColor: redyColor,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(18.0),
-                                      ),
-                                      side: BorderSide(
-                                          color: secondaryColor, width: 2),
-                                    ),
-                                  )).paddingLTRB(0, 0, 0, 10),
-                              subtitle: Column(children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: _dayValues.map((value) {
-                                    final opacity = {
-                                          -2: 0.4,
-                                          -1: 0.5,
-                                          0: 0.6,
-                                          1: 0.8,
-                                          2: 1.0,
-                                        }[value] ??
-                                        1.0;
-                                    return GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          day?.dailyScore = value;
-                                          dataProvider.saveData();
-                                        });
-                                      },
-                                      child: Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          border:
-                                              Border.all(color: Colors.grey),
-                                          color: day?.dailyScore == value
-                                              ? secondaryColor
-                                                  .withOpacity(opacity)
-                                              : null,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            value.toString(),
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                        ),
-                                      ).paddingAll(3),
-                                    );
-                                  }).toList(),
-                                ),
-                                Text(day.qualitativeComment ?? "")
-                                    .paddingAll(10)
-                              ]))
-                        ],
-                      ),
-                    ),
-                  ],
-                ).paddingLTRB(10, 10, 10, 10),
-              ).paddingAll(10),
+              child: PastDaysCarousel(),
             ),
           ],
         ));

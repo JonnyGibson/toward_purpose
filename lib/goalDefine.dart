@@ -8,10 +8,6 @@ import 'package:toward_purpose/viewGoal.dart';
 import 'dataProvider.dart';
 import 'styles.dart';
 
-final Color primaryColor = Color.fromRGBO(243, 198, 152, 1.0);
-final Color secondaryColor = Color.fromRGBO(140, 148, 89, 1.0);
-final Color accentColor = Color.fromRGBO(210, 130, 90, 1.0);
-
 class GoalDefine extends StatefulWidget {
   const GoalDefine({Key? key}) : super(key: key);
 
@@ -100,7 +96,7 @@ class _GoalDefineState extends State<GoalDefine> {
               alignment: Alignment.bottomCenter,
               child: Container(
                 width: double.infinity,
-                color: primaryColor.withOpacity(0.2),
+                color: primaryColor?.withOpacity(0.2),
                 child: Padding(
                   padding: EdgeInsets.all(4.0),
                   child: GoalText(),

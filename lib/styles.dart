@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-final Color primaryColor = Color.fromRGBO(243, 198, 152, 1.0);
+final Color? primaryColor = Colors.amber[50];
 final Color secondaryColor = Color.fromRGBO(140, 148, 89, 1.0);
 final Color accentColor = Color.fromRGBO(210, 130, 90, 1.0);
 final Color redyColor = Color.fromRGBO(209, 48, 32, 1.0);

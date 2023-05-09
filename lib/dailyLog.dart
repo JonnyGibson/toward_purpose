@@ -22,7 +22,7 @@ class _DailyLogState extends State<DailyLog> {
     super.initState();
   }
 
-  final Color primaryColor = Color.fromRGBO(243, 198, 152, 1.0);
+  final Color? primaryColor = Colors.amber[50];
   final Color secondaryColor = Color.fromRGBO(140, 148, 89, 1.0);
   final Color accentColor = Color.fromRGBO(210, 130, 90, 1.0);
   List<List<Day>> weeks = [];
@@ -162,7 +162,7 @@ class _DailyLogState extends State<DailyLog> {
                               ? 'No Engagement with goals'
                               : 'Engagement with goals',
                           style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black54,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
