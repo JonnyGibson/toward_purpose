@@ -4,7 +4,7 @@ import 'package:toward_purpose/generateTestData.dart';
 import 'package:toward_purpose/viewGoal.dart';
 import 'dataProvider.dart';
 import 'styles.dart';
-import 'goalDefine.dart';
+import 'purposeDefine.dart';
 
 class WelcomePage extends StatefulWidget {
   @override
@@ -67,7 +67,7 @@ class _WelcomePageState extends State<WelcomePage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => GoalDefine()),
+                  MaterialPageRoute(builder: (context) => PurposeDefine()),
                 );
               },
               child: Padding(

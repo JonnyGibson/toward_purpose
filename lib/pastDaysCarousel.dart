@@ -65,16 +65,21 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
                       borderRadius: BorderRadius.circular(5.0),
                     ),
                     child: TextField(
-                      maxLines: 3,
-                      controller: controller,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(10.0),
-                      ),
-                      onChanged: (value) {
-                        day.qualitativeComment = value;
-                      },
-                    ),
+                        maxLines: 3,
+                        controller: controller,
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(10.0),
+                        ),
+                        onChanged: (value) {
+                          controller.value = TextEditingValue(
+                            text: value,
+                            selection: TextSelection.fromPosition(
+                              TextPosition(offset: value.length),
+                            ),
+                          );
+                          day.qualitativeComment = value;
+                        }),
                   ),
                   Padding(
                     padding: EdgeInsets.only(top: 16),
@@ -127,27 +132,26 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    if ((day.dailyScore == 0) &&
-                        (day.qualitativeComment == "")) {
-                      dataProvider.data.days
-                          ?.removeWhere((element) => element.id == day.id);
-                      dataProvider.saveData();
-                    }
+                    // if ((day.dailyScore == 0) &&
+                    //     (day.qualitativeComment == "")) {
+                    //   dataProvider.data.days
+                    //       ?.removeWhere((element) => element.id == day.id);
+                    //   dataProvider.saveData();
+                    // }
                     day.dailyScore = originalScore;
                     day.qualitativeComment = originalText;
                     Navigator.of(context).pop(false);
-                    //  Navigator.pop(context);
                   },
                   child: Text("Cancel"),
                 ),
                 TextButton(
                   onPressed: () {
-                    //  setState(() {
-                    day.dailyScore = _selectedValue;
-                    dataProvider.saveData();
-                    //  });
+                    setState(() {
+                      day.qualitativeComment = controller.text;
+                      day.dailyScore = _selectedValue;
+                      dataProvider.saveData();
+                    });
                     Navigator.of(context).pop(true);
-                    // Navigator.pop(context);
                   },
                   child: Text("Save"),
                 ),
@@ -215,7 +219,7 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
                       )
                     ],
                   ).paddingLTRB(0, 10, 0, 0))
-              .paddingLTRB(0, 5, 0, 5),
+              .paddingLTRB(0, 5, 0, 10),
         ),
       );
     }).toList();
@@ -290,7 +294,7 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey),
-                              color: day.dailyScore == value
+                              color: _day.dailyScore == value
                                   ? secondaryColor.withOpacity(opacity)
                                   : null,
                             ),
@@ -304,7 +308,7 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
                         );
                       }).toList(),
                     ),
-                    Text(day.qualitativeComment ?? "").paddingAll(10)
+                    Text(_day.qualitativeComment ?? "").paddingAll(10)
                   ]))
             ])).paddingLTRB(0, 0, 0, 20);
       }).toList(),

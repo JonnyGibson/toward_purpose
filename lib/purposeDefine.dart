@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:toward_purpose/viewGoal.dart';
 
 import 'dataProvider.dart';
+import 'setGoals.dart';
 import 'styles.dart';
 
-class GoalDefine extends StatefulWidget {
-  const GoalDefine({Key? key}) : super(key: key);
+class PurposeDefine extends StatefulWidget {
+  const PurposeDefine({Key? key}) : super(key: key);
 
   @override
-  _GoalDefineState createState() => _GoalDefineState();
+  _PurposeDefineState createState() => _PurposeDefineState();
 }
 
-class _GoalDefineState extends State<GoalDefine> {
-  // final _formKey = GlobalKey<FormState>();
+class _PurposeDefineState extends State<PurposeDefine> {
   final _textEditingController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -46,16 +46,13 @@ class _GoalDefineState extends State<GoalDefine> {
               style: Gruppolarge(),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-            child: TextField(
-              controller: _textEditingController,
-              decoration: InputDecoration(
-                hintText: 'Enter your goal here',
-                contentPadding: EdgeInsets.all(16.0),
-              ),
+          TextField(
+            controller: _textEditingController,
+            decoration: InputDecoration(
+              hintText: 'Enter your purpose statement',
+              contentPadding: EdgeInsets.all(16.0),
             ),
-          ),
+          ).paddingLTRB(20, 0, 20, 0),
           Center(
             child: ElevatedButton(
               onPressed: () {
@@ -66,7 +63,7 @@ class _GoalDefineState extends State<GoalDefine> {
                   dataProvider.saveData();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ViewGoal()),
+                    MaterialPageRoute(builder: (context) => SetGoals()),
                   );
                 }
               },
