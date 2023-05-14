@@ -17,7 +17,7 @@ class EditMeasurable extends StatefulWidget {
 
 class _EditMeasurableState extends State<EditMeasurable> {
   late DataProvider dataProvider;
-  late Measurable measurable;
+  late Goal measurable;
   late TextEditingController _measureableNameController;
   late int? originalTarget;
 
@@ -31,26 +31,16 @@ class _EditMeasurableState extends State<EditMeasurable> {
     measurable = measurables.firstWhere((m) => m.typeId == widget.id);
     _measureableNameController =
         TextEditingController(text: measurable.name ?? '');
-    originalTarget = measurable.targetWeeklyHours;
+    //   originalTarget = measurable.targetWeeklyHours;
   }
 
   void addNewActivity(BuildContext context, String name, int _hours) {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
-    final data = dataProvider.data;
+    //final data = dataProvider.data;
 
     final activity =
         Activity(name: name, hours: _hours, measurable_id: measurable.typeId);
     activity.generateId();
-
-    // if (data.days?.doesDayExist(DateTime.now()) ?? false) {
-    //   data.addActivityToDay(DateTime.now(), activity);
-    // } else {
-    //   var newDay = Day(date: DateTime.now());
-    //   if (data.days == null) data.days = [];
-    //   data.days?.add(newDay);
-    //   newDay.activities = [];
-    //   newDay.activities?.add(activity);
-    // };
 
     setState(() {
       dataProvider.saveData();
@@ -60,7 +50,7 @@ class _EditMeasurableState extends State<EditMeasurable> {
   void editMeasurable(BuildContext context, String measurableId, String name,
       int targetWeeklyHours) {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
-    final data = dataProvider.data;
+    //final data = dataProvider.data;
     var mes; // = data.measurables ?.firstWhere((element) => element.typeId == measurableId);
     mes?.name = name;
     mes?.targetWeeklyHours = targetWeeklyHours;

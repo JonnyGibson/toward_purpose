@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'dataProvider.dart';
+
 import 'setGoals.dart';
 import 'styles.dart';
 
@@ -17,11 +18,13 @@ class PurposeDefine extends StatefulWidget {
 }
 
 class _PurposeDefineState extends State<PurposeDefine> {
-  final _textEditingController = TextEditingController();
+  var _textEditingController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final dataProvider = context.watch<DataProvider>();
-    final data = dataProvider.data;
+
+    _textEditingController.text = dataProvider.data.goalStatement!;
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,8 +61,8 @@ class _PurposeDefineState extends State<PurposeDefine> {
               onPressed: () {
                 final text = _textEditingController.text;
                 if (text.isNotEmpty) {
-                  data.goalStatement = text;
-                  data.generateId();
+                  dataProvider.data.goalStatement = text;
+                  dataProvider.data.generateId();
                   dataProvider.saveData();
                   Navigator.push(
                     context,

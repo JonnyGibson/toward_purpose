@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:toward_purpose/dataModel.dart';
 import 'package:toward_purpose/extensions.dart';
 import 'package:toward_purpose/styles.dart';
-
 import 'dataProvider.dart';
 
 class PastDaysCarousel extends StatefulWidget {
@@ -22,16 +21,14 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
     super.initState();
   }
 
-  Day getDay(DataProvider dataProvider, DateTime displayDate) {
-    var data = dataProvider.data;
-    var day = data.getToday(displayDate);
-    if (day == null) {
-      day = data.newDay(displayDate);
-      if (data.days == null) data.days = [];
-      data.days?.add(day);
+  Day getOrCreateDay(DataProvider dataProvider, DateTime displayDate) {
+    var _day = dataProvider.data.getToday(displayDate);
+    if (_day == null) {
+      _day = dataProvider.data.newDay(displayDate);
+      dataProvider.data.days?.add(_day);
       dataProvider.saveData();
     }
-    return day;
+    return _day;
   }
 
   Future showAddDayDialog(BuildContext context) {
@@ -132,12 +129,6 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    // if ((day.dailyScore == 0) &&
-                    //     (day.qualitativeComment == "")) {
-                    //   dataProvider.data.days
-                    //       ?.removeWhere((element) => element.id == day.id);
-                    //   dataProvider.saveData();
-                    // }
                     day.dailyScore = originalScore;
                     day.qualitativeComment = originalText;
                     Navigator.of(context).pop(false);
@@ -173,7 +164,7 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
 
   void onPageChanged(int index, CarouselPageChangedReason reason) {
     setState(() {
-      day = getDay(dataProvider, days[index]);
+      day = getOrCreateDay(dataProvider, days[index]);
     });
   }
 
@@ -231,11 +222,11 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
 
     DateTime currentDate = DateTime.now();
     days = getPastDays(28, currentDate);
-    var _day = getDay(dataProvider, days.last);
+    day = getOrCreateDay(dataProvider, days.last);
     List<int> _dayValues = [-2, -1, 0, 1, 2];
     return CarouselSlider(
       items: days.map((element) {
-        _day = getDay(dataProvider, element);
+        day = getOrCreateDay(dataProvider, element);
         return Container(
             decoration: BoxDecoration(
               color: Colors.amber[50],
@@ -248,9 +239,9 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
               ListTile(
                   title: Align(
                 alignment: Alignment.center,
-                child: Text(formatDate(_day.date)),
+                child: Text(formatDate(day.date)),
               )),
-              ...?getActivities(context, _day),
+              ...?getActivities(context, day),
               ListTile(
                   title: Align(
                       alignment: Alignment.center,
@@ -284,7 +275,7 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
                         return GestureDetector(
                           onTap: () {
                             setState(() {
-                              _day.dailyScore = value;
+                              day.dailyScore = value;
                               dataProvider.saveData();
                             });
                           },
@@ -294,7 +285,7 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               border: Border.all(color: Colors.grey),
-                              color: _day.dailyScore == value
+                              color: day.dailyScore == value
                                   ? secondaryColor.withOpacity(opacity)
                                   : null,
                             ),
@@ -308,7 +299,7 @@ class _PastDaysCarouselState extends State<PastDaysCarousel> {
                         );
                       }).toList(),
                     ),
-                    Text(_day.qualitativeComment ?? "").paddingAll(10)
+                    Text(day.qualitativeComment ?? "").paddingAll(10)
                   ]))
             ])).paddingLTRB(0, 0, 0, 20);
       }).toList(),

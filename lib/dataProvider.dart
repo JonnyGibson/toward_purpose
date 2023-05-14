@@ -19,4 +19,19 @@ class DataProvider extends ChangeNotifier {
     data = dataModel();
     notifyListeners();
   }
+
+  void addMeasurable(Goal measurable) {
+    data.goalTemplates?.add(measurable);
+    notifyListeners();
+  }
+
+  void updateMeasurable(Goal measurable, int index) {
+    data.goalTemplates?[index] = measurable;
+    notifyListeners();
+  }
+
+  void deleteMeasurable(int index) {
+    data.goalTemplates?.removeAt(index);
+    notifyListeners();
+  }
 }

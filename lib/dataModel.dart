@@ -4,21 +4,21 @@ import 'extensions.dart';
 class dataModel {
   String? id;
   String? goalStatement;
-  List<Measurable>? measurableTemplates;
+  List<Goal>? goalTemplates;
   List<Day>? days;
 
   dataModel({
     this.id,
     this.goalStatement,
-    this.measurableTemplates,
+    this.goalTemplates,
     this.days,
   });
 
   factory dataModel.fromJson(Map<String, dynamic> json) => dataModel(
         id: json['id'] as String?,
         goalStatement: json['goalStatement'] as String?,
-        measurableTemplates: (json['measurables'] as List<dynamic>?)
-            ?.map((e) => Measurable.fromJson(e as Map<String, dynamic>))
+        goalTemplates: (json['measurables'] as List<dynamic>?)
+            ?.map((e) => Goal.fromJson(e as Map<String, dynamic>))
             .toList(),
         days: (json['days'] as List<dynamic>?)
             ?.map((e) => Day.fromJson(e as Map<String, dynamic>))
@@ -28,7 +28,7 @@ class dataModel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'goalStatement': goalStatement,
-        'measurables': measurableTemplates?.map((e) => e.toJson()).toList(),
+        'measurables': goalTemplates?.map((e) => e.toJson()).toList(),
         'days': days?.map((e) => e.toJson()).toList(),
       };
 
@@ -73,12 +73,12 @@ class dataModel {
 
     day.dailyScore = 0;
     day.measurables = this
-        .measurableTemplates
-        ?.map((element) => Measurable(
+        .goalTemplates
+        ?.map((element) => Goal(
               typeId: element.typeId,
               uniqueId: Uuid().v4(),
               name: element.name,
-              targetWeeklyHours: 0,
+              //  targetWeeklyHours: 0,
               engagement: 0,
             ))
         .toList();
@@ -86,25 +86,18 @@ class dataModel {
   }
 }
 
-class Measurable {
+class Goal {
   String? uniqueId;
   String? typeId;
   String? name;
-  int targetWeeklyHours;
   int engagement;
 
-  Measurable(
-      {this.typeId,
-      this.uniqueId,
-      this.name,
-      this.targetWeeklyHours = 0,
-      this.engagement = 0});
+  Goal({this.typeId, this.uniqueId, this.name, this.engagement = 0});
 
-  factory Measurable.fromJson(Map<String, dynamic> json) => Measurable(
+  factory Goal.fromJson(Map<String, dynamic> json) => Goal(
         uniqueId: json['uniqueId'] as String?,
         typeId: json['id'] as String?,
         name: json['name'] as String?,
-        targetWeeklyHours: json['targetWeeklyHours'] as int,
         engagement: json['engagement'] as int,
       );
 
@@ -112,7 +105,6 @@ class Measurable {
         'uniqueId': uniqueId,
         'typeId': typeId,
         'name': name,
-        'targetWeeklyHours': targetWeeklyHours,
         'engagement': engagement,
       };
 
@@ -123,6 +115,20 @@ class Measurable {
   void generateUniqueId() {
     uniqueId = const Uuid().v4();
   }
+
+  Goal copyWith({
+    String? uniqueId,
+    String? typeId,
+    String? name,
+    int? engagement,
+  }) {
+    return Goal(
+      uniqueId: uniqueId ?? this.uniqueId,
+      typeId: typeId ?? this.typeId,
+      name: name ?? this.name,
+      engagement: engagement ?? this.engagement,
+    );
+  }
 }
 
 class Day {
@@ -130,7 +136,7 @@ class Day {
   DateTime date;
   int? dailyScore;
   String? qualitativeComment;
-  List<Measurable>? measurables;
+  List<Goal>? measurables;
 
   Day({
     this.id,
@@ -146,7 +152,7 @@ class Day {
         dailyScore: json['dailyScore'] as int?,
         qualitativeComment: json['qualitativeComment'] as String?,
         measurables: (json['measurables'] as List<dynamic>?)
-            ?.map((e) => Measurable.fromJson(e as Map<String, dynamic>))
+            ?.map((e) => Goal.fromJson(e as Map<String, dynamic>))
             .toList(),
       );
 

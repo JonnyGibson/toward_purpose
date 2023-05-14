@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:toward_purpose/dailyLog.dart';
+import 'package:toward_purpose/purposeDefine.dart';
 import 'dataModel.dart';
 import 'dataProvider.dart';
 import 'dataStorage.dart';
@@ -134,14 +135,14 @@ class _ViewGoalState extends State<ViewGoal> {
       BuildContext context, String name, int targetWeeklyHours) {
     final dataProvider = Provider.of<DataProvider>(context, listen: false);
     final data = dataProvider.data;
-    final measurable = Measurable(
+    final measurable = Goal(
       name: name,
-      targetWeeklyHours: targetWeeklyHours,
+      // targetWeeklyHours: targetWeeklyHours,
     );
     measurable.generateId();
-    final measurables = data.measurableTemplates ?? [];
+    final measurables = data.goalTemplates ?? [];
     measurables.add(measurable);
-    data.measurableTemplates = measurables;
+    data.goalTemplates = measurables;
 
     setState(() {
       dataProvider.saveData();
@@ -292,8 +293,10 @@ class _ViewGoalState extends State<ViewGoal> {
                   style: GruppoMedium(),
                 ),
                 onTap: () {
-                  // Update the state of the app.
-                  // ...
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => PurposeDefine()),
+                  );
                 },
               ),
               ListTile(
@@ -306,30 +309,30 @@ class _ViewGoalState extends State<ViewGoal> {
                   _confirmResetData();
                 },
               ),
-              Container(
-                child: FutureBuilder<PackageInfo>(
-                  future: PackageInfo.fromPlatform(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      final packageInfo = snapshot.data!;
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('App Name: ${packageInfo.appName}'),
-                          Text('Package Name: ${packageInfo.packageName}'),
-                          Text('Version: ${packageInfo.version}'),
-                          Text('Build Number: ${packageInfo.buildNumber}'),
-                        ],
-                      );
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  },
-                ),
-              ).paddingLTRB(0, 50, 0, 0),
+              // Container(
+              //   child: FutureBuilder<PackageInfo>(
+              //     future: PackageInfo.fromPlatform(),
+              //     builder: (context, snapshot) {
+              //       if (snapshot.hasData) {
+              //         final packageInfo = snapshot.data!;
+              //         return Column(
+              //           mainAxisAlignment: MainAxisAlignment.start,
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           children: [
+              //             Text('App Name: ${packageInfo.appName}'),
+              //             Text('Package Name: ${packageInfo.packageName}'),
+              //             Text('Version: ${packageInfo.version}'),
+              //             Text('Build Number: ${packageInfo.buildNumber}'),
+              //           ],
+              //         );
+              //       } else if (snapshot.hasError) {
+              //         return Text('Error: ${snapshot.error}');
+              //       } else {
+              //         return CircularProgressIndicator();
+              //       }
+              //     },
+              //   ),
+              // ).paddingLTRB(0, 50, 0, 0),
             ],
           ),
         ),
