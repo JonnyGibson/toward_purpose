@@ -289,7 +289,7 @@ class _ViewGoalState extends State<ViewGoal> {
               ListTile(
                 leading: Icon(Icons.settings),
                 title: Text(
-                  "Settings",
+                  "Amend Goals",
                   style: GruppoMedium(),
                 ),
                 onTap: () {
@@ -303,7 +303,7 @@ class _ViewGoalState extends State<ViewGoal> {
                 leading: Icon(Icons.delete),
                 title: Text(
                   "Delete data",
-                  style: GruppoMedium(),
+                  style: GruppoMedium().copyWith(color: Colors.red),
                 ),
                 onTap: () {
                   _confirmResetData();

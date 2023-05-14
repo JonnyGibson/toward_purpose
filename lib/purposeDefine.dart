@@ -24,7 +24,7 @@ class _PurposeDefineState extends State<PurposeDefine> {
   Widget build(BuildContext context) {
     final dataProvider = context.watch<DataProvider>();
 
-    _textEditingController.text = dataProvider.data.goalStatement!;
+    _textEditingController.text = dataProvider.data.goalStatement ?? "";
     return Scaffold(
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
